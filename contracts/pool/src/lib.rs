@@ -49,6 +49,9 @@ impl PoolContract {
     ///   `fund_invoice` to re-verify the issuer and buyer are still verified
     ///   before pool capital is committed.
     ///
+    /// Protocol fee storage (`DataKey::ProtocolFeeBps`) is explicitly initialized to 0 bps
+    /// and `DataKey::TreasuryAddress` is initialized to `admin` as the default treasury.
+    ///
     /// # Auth
     /// Requires authorization from `admin`.
     ///
@@ -144,6 +147,7 @@ impl PoolContract {
         env.storage()
             .instance()
             .set(&DataKey::TotalLossRealised, &0u128);
+        // Explicitly set DataKey::ProtocolFeeBps to 0 and DataKey::TreasuryAddress to treasury (defaults to admin)
         env.storage()
             .instance()
             .set(&DataKey::ProtocolFeeBps, &0u32);
@@ -1073,6 +1077,9 @@ impl PoolContract {
 
     /// Sets the protocol fee in basis points and the treasury address.
     ///
+    /// Requires authorization from the contract admin. Updates both
+    /// `DataKey::ProtocolFeeBps` and `DataKey::TreasuryAddress` in contract storage.
+    ///
     /// # Arguments
     /// * `env` - The Soroban environment.
     /// * `fee_bps` - The new protocol fee in basis points (max `2000` = 20%).
@@ -1099,6 +1106,7 @@ impl PoolContract {
             .instance()
             .get(&DataKey::ProtocolFeeBps)
             .unwrap_or(0u32);
+        // Explicitly update both DataKey::ProtocolFeeBps and DataKey::TreasuryAddress
         env.storage()
             .instance()
             .set(&DataKey::ProtocolFeeBps, &fee_bps);
